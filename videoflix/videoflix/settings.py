@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-m78s&^ux7*=o0gkro^atoun8c7r8sbo22dthk60fh!w$lf@s39
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1','localhost']
+CORS_ALLOWED_ORIGINS = ['http://localhost:4200','http://localhost:5500','http://127.0.0.1:5500','https://julia-wessolleck.developerakademie.net']
 
 AUTH_USER_MODEL = 'videoflixApp.User'
 # Application definition
@@ -38,12 +39,18 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'videoflixApp',
-    'rest_framework'
+    'rest_framework',
+    'rest_framework.authtoken', #important for usage of Token
+    'rest_auth',  #pip install django-rest-auth
+    'rest_auth.registration',
+    'django_rest_passwordreset',  #pip install django-rest-passwordreset
+    'corsheaders'   #pip install django-cors-headers  important CORS
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  #important CORS
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -123,3 +130,12 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        #'todolist.views.EmailOrUsernameAuthentication',# Stellen Sie sicher, dass Sie den Pfad zu Ihrer Authentifizierungsklasse angeben
+        'rest_framework.authentication.TokenAuthentication'
+        # 'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+    ]
+}

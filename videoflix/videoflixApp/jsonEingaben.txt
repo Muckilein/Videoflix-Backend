@@ -4,8 +4,16 @@
     "password2" :"111abcdefgh",
     "email" :"Anni@mail.de", 
     "username" :"Anni Maus",
-    "first_name":"Anni",
-    "last_name":"Maus",
-    "short":"AM"
+    "first_name":"",
+    "last_name":"",
+    "short":""
+}
+
+
+http://127.0.0.1:8000/login/
+{
+    "password" :"111user",  
+    "username":"Minni@mail.de"
+    
 }
       
