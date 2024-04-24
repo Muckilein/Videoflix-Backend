@@ -1,0 +1,11 @@
+  http://127.0.0.1:8000/registerAPI/   
+{
+    "password" :"111abcdefgh",
+    "password2" :"111abcdefgh",
+    "email" :"Anni@mail.de", 
+    "username" :"Anni Maus",
+    "first_name":"Anni",
+    "last_name":"Maus",
+    "short":"AM"
+}
+      
