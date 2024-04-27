@@ -3,8 +3,10 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import generics
-from .serializers import RegisterSerializer
-from .models import User
+from rest_framework.views import APIView
+from rest_framework import status
+from .serializers import RegisterSerializer,VideoSerializer
+from .models import User,Video
 # Create your views here.
 class LoginView(ObtainAuthToken): 
    def post(self, request, *args, **kwargs):       
@@ -26,4 +28,21 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = []
     serializer_class = RegisterSerializer
+    
+class videoClipView(APIView):
+    serializer_class = VideoSerializer
+
+    def get(self, request, format=None):
+        queryset = Video.objects.all()
+        #serializer = self.serializer_class(queryset, many=True)
+        serializer = self.serializer_class(queryset[0], many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):
+        jsondata = request.data
+        serializer = self.serializer_class(data=jsondata)
+        if serializer.is_valid(raise_exception=True):
+             serializer.save()
+             msg = {'msg':'Add Clip'}
+             return Response(msg, status=status.HTTP_201_CREATED)
     

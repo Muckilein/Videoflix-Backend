@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +30,12 @@ ALLOWED_HOSTS = ['127.0.0.1','localhost']
 CORS_ALLOWED_ORIGINS = ['http://localhost:4200','http://localhost:5500','http://127.0.0.1:5500','https://julia-wessolleck.developerakademie.net']
 
 AUTH_USER_MODEL = 'videoflixApp.User'
+
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'  # localhost/media    greift auf den Medienordner zu
 # Application definition
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -38,16 +44,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'videoflixApp',
+    #'videoflixApp', 
+    'videoflixApp.apps.VideoflixappConfig', # important for signals
     'rest_framework',
     'rest_framework.authtoken', #important for usage of Token
     'rest_auth',  #pip install django-rest-auth
     'rest_auth.registration',
     'django_rest_passwordreset',  #pip install django-rest-passwordreset
-    'corsheaders'   #pip install django-cors-headers  important CORS
+    'corsheaders',   #pip install django-cors-headers  important CORS
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',  #important CORS
@@ -56,7 +65,17 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+   
 ]
+
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    
+    # ...
+]
+
 
 ROOT_URLCONF = 'videoflix.urls'
 
@@ -146,3 +165,13 @@ EMAIL_PORT =  587 #465
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'mucki6412@gmail.com'
 EMAIL_HOST_PASSWORD = 'atoh ynmm zlzo iekr'
+
+CACHES = {    
+          "default": {       
+              "BACKEND": "django_redis.cache.RedisCache",       
+              "LOCATION": "redis://127.0.0.1:6379/1",        
+              "OPTIONS": {            
+                  "CLIENT_CLASS": "django_redis.client.DefaultClient"        
+                  },        
+              "KEY_PREFIX": "videoflix"    }
+          }

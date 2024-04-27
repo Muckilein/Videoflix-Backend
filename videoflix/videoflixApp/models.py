@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
+from datetime import date
 
 
 class CustomUserManager(BaseUserManager):
@@ -40,6 +41,15 @@ class User(AbstractUser):
      objects = CustomUserManager() 
      def __str__(self):        
         return  self.username 
+    
+class Video(models.Model):
+     title=models.CharField(max_length=100,unique=True)
+     description = models.CharField(max_length=500)   
+     genre=models.CharField(max_length=100,default=' ')    
+     type=models.CharField(max_length=100,default=' ')
+     fsk=models.CharField(max_length=100,default=' ')
+     created_at = models.DateField(default=date.today)    
+     video_file = models.FileField(upload_to='videos', blank=True, null=True)
     
     
 @receiver(reset_password_token_created)
