@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from datetime import date
+from . import methods
 
 
 class CustomUserManager(BaseUserManager):
@@ -42,6 +43,14 @@ class User(AbstractUser):
      def __str__(self):        
         return  self.username 
     
+class Category(models.Model):
+    name=models.CharField(max_length=50,unique=True)
+    
+    def __str__(self):
+       return  (self.name)
+    
+   
+    
 class Video(models.Model):
      title=models.CharField(max_length=100,unique=True)
      description = models.CharField(max_length=500)   
@@ -50,7 +59,65 @@ class Video(models.Model):
      fsk=models.CharField(max_length=100,default=' ')
      created_at = models.DateField(default=date.today)    
      video_file = models.FileField(upload_to='videos', blank=True, null=True)
+     short_file = models.FileField(upload_to='short', blank=True, null=True)
+     img = models.ImageField(upload_to='bilder/',blank=True, null=True)
+     category=  models.ManyToManyField(Category,through='CategoryListFilm')
+     
+     def __str__(self):
+       return  (self.title)   
+
+class CategoryListFilm(models.Model):
+    category=models.ForeignKey(Category, on_delete=models.CASCADE)
+    video= models.ForeignKey(Video, on_delete=models.CASCADE) 
     
+    def __str__(self):
+       return  (self.category.name + " " +self.video.title)  
+
+class Episode(models.Model):
+    title=models.CharField(max_length=100,unique=True)
+    description = models.CharField(max_length=500)   
+    created_at = models.DateField(default=date.today)    
+    video_file = models.FileField(upload_to='Episodes', blank=True, null=True)
+    # season = models.CharField(max_length=100,default=' ') 
+    # episode = models.CharField(max_length=100,default=' ')  
+    season = models.IntegerField(default=1)
+    episode = models.IntegerField(default=1)   
+    img = models.ImageField(upload_to='bilder/',blank=True, null=True) 
+    #serie= models.ForeignKey(Serie, on_delete=models.CASCADE) 
+
+    def __str__(self):
+       return  (self.title)       
+
+class Serie(models.Model):
+     title=models.CharField(max_length=100,unique=True)
+     description = models.CharField(max_length=500)
+     type=models.CharField(max_length=100,default=' ')   
+     genre=models.CharField(max_length=100,default=' ')    
+     short_file = models.FileField(upload_to='short', blank=True, null=True)
+     img = models.ImageField(upload_to='bilder/',blank=True, null=True) 
+     category=  models.ManyToManyField(Category,through='CategoryListSeries')
+     numSeasons = models.IntegerField()
+     episodeList = models.ManyToManyField(Episode,through='EpisodeList')
+     
+     
+     def __str__(self):
+       return  self.title 
+     
+class EpisodeList(models.Model):
+    episode=models.ForeignKey(Episode, on_delete=models.CASCADE)
+    series= models.ForeignKey(Serie, on_delete=models.CASCADE)   
+          
+    def __str__(self):
+       return  (self.episode.title + " " +self.series.title) 
+   
+    
+
+class CategoryListSeries(models.Model):
+    category=models.ForeignKey(Category, on_delete=models.CASCADE)
+    video= models.ForeignKey(Serie, on_delete=models.CASCADE)   
+    
+  
+        
     
 @receiver(reset_password_token_created)
 def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):

@@ -32,7 +32,7 @@ CORS_ALLOWED_ORIGINS = ['http://localhost:4200','http://localhost:5500','http://
 AUTH_USER_MODEL = 'videoflixApp.User'
 
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media') #BASE_DIR ist videoflix
 MEDIA_URL = '/media/'  # localhost/media    greift auf den Medienordner zu
 # Application definition
 

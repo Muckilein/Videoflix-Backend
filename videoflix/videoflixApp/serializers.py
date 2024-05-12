@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User,Video
+from .models import User,Video,Serie,Episode
 
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
@@ -55,3 +55,21 @@ class VideoSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Video.objects.create(**validated_data)
+
+class SerieSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Serie
+        fields = '__all__'
+
+    def create(self, validated_data):
+        return Serie.objects.create(**validated_data)
+      
+      
+class EpisodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Episode
+        fields = '__all__'
+
+    def create(self, validated_data):
+        return Episode.objects.create(**validated_data)
+      

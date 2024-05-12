@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-from videoflixApp.views import LoginView,RegisterView,videoClipView
+from videoflixApp.views import LoginView,RegisterView,videoClipView,EpisodeClipView,SerieView
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -27,4 +27,6 @@ urlpatterns = [
     path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
     path('__debug__/', include("debug_toolbar.urls")),
     path('videoclip/', videoClipView.as_view()),
+    path('episodenclip/', EpisodeClipView.as_view()),
+    path('series/', SerieView.as_view()),
 ]+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

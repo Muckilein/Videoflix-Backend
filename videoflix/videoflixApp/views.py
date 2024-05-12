@@ -5,8 +5,8 @@ from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework import status
-from .serializers import RegisterSerializer,VideoSerializer
-from .models import User,Video
+from .serializers import RegisterSerializer,VideoSerializer,EpisodeSerializer,SerieSerializer
+from .models import User,Video,Episode,Serie
 # Create your views here.
 class LoginView(ObtainAuthToken): 
    def post(self, request, *args, **kwargs):       
@@ -34,8 +34,8 @@ class videoClipView(APIView):
 
     def get(self, request, format=None):
         queryset = Video.objects.all()
-        #serializer = self.serializer_class(queryset, many=True)
-        serializer = self.serializer_class(queryset[0], many=False)
+        serializer = self.serializer_class(queryset, many=True)
+        #serializer = self.serializer_class(queryset[0], many=False)        
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -45,4 +45,51 @@ class videoClipView(APIView):
              serializer.save()
              msg = {'msg':'Add Clip'}
              return Response(msg, status=status.HTTP_201_CREATED)
+    
+
+class EpisodeClipView(APIView):
+    serializer_class = EpisodeSerializer
+
+    def get(self, request, format=None):
+        queryset = Episode.objects.all()
+        serializer = self.serializer_class(queryset, many=True)
+        #serializer = self.serializer_class(queryset[0], many=False)        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):
+        jsondata = request.data
+        serializer = self.serializer_class(data=jsondata)
+        if serializer.is_valid(raise_exception=True):
+             serializer.save()
+             msg = {'msg':'Add Clip'}
+             return Response(msg, status=status.HTTP_201_CREATED)
+ 
+ 
+def createEpisodeList(serializedData):
+      #Auslagern in methodes.py und für alle und nicht nur für [0]
+    serializer_Episodes = EpisodeSerializer  
+      
+    episodeList =serializedData['episodeList']
+    querysetEpisodes = Episode.objects.filter(id__in=episodeList)  
+    serializedEpisodes = serializer_Episodes(querysetEpisodes, many=True)    
+    serializedData['episodeList'] = serializedEpisodes.data  
+    return serializedData  
+
+  
+
+def createEpisodeListAll(serializedData):
+    for series in serializedData:
+        series = createEpisodeList(series)   
+         
+class SerieView(APIView):
+    serializer_class = SerieSerializer  
+   
+
+    def get(self, request, format=None):
+        queryset = Serie.objects.all()                
+        serializer = self.serializer_class(queryset, many=True)      
+        #serializer.data[0] = createEpisodeList(serializer.data[0])
+        createEpisodeListAll(serializer.data)             
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     
