@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from datetime import date
-from . import methods
+
 
 
 class CustomUserManager(BaseUserManager):

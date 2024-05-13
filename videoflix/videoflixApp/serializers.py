@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import User,Video,Serie,Episode
-
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 
