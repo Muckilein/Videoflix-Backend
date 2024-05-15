@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User,Video,Episode,Serie,Category,CategoryListFilm,CategoryListSeries,EpisodeList
+from .models import User,Video,Episode,Serie,Category,CategoryListFilm,CategoryListSeries,EpisodeList,UserSerieEvaluation,UserFilmEvaluation
 #from import_export import resources
 
 @admin.register(User)
@@ -10,8 +10,8 @@ class UserAdmin(admin.ModelAdmin):
     
 @admin.register (Video)
 class VideoAdmin(admin.ModelAdmin): 
-     fields = ('title','created_at','description','video_file','genre','type','fsk','short_file','img') # nitice category is a many-to-many field and not shown here
-     list_display = ('title','created_at','description','video_file','genre','type','fsk','short_file','img')    
+     fields = ('title','created_at','description','video_file','genre','type','fsk','short_file','img','evaluation') # nitice category is a many-to-many field and not shown here
+     list_display = ('title','created_at','description','video_file','genre','type','fsk','short_file','img','evaluation')    
      search_fields = ('title',)
      
      
@@ -29,8 +29,8 @@ class CategoryAdmin(admin.ModelAdmin):
        
 @admin.register (Serie)
 class SeriesAdmin(admin.ModelAdmin): 
-     fields =  ('title','description','genre','img','short_file','type','numSeasons')  
-     list_display = ('title','description','genre','img','short_file','type','numSeasons')    
+     fields =  ('title','description','genre','img','short_file','type','numSeasons','evaluation')  
+     list_display = ('title','description','genre','img','short_file','type','numSeasons','evaluation')    
      search_fields = ('title',)      
      
 
@@ -52,6 +52,19 @@ class EpisodeListsAdmin(admin.ModelAdmin):
      fields = ('episode','series')  
      list_display = ('episode','series')    
      search_fields = ('episode',)
+     
+     
+@admin.register (UserSerieEvaluation)
+class UserSerieEvaluationsAdmin(admin.ModelAdmin): 
+     fields = ('user','serie','evaluation')  
+     list_display = ('user','serie','evaluation')    
+     search_fields = ('user',)
+
+@admin.register (UserFilmEvaluation)
+class UserFilmEvaluationAdmin(admin.ModelAdmin): 
+     fields = ('user','video','evaluation')  
+     list_display = ('user','video','evaluation')    
+     search_fields = ('user',)
      
      
      

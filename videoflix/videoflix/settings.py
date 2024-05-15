@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken', #important for usage of Token
     'rest_auth',  #pip install django-rest-auth
-    'rest_auth.registration',
+    'rest_auth.registration',   
     'django_rest_passwordreset',  #pip install django-rest-passwordreset
     'corsheaders',   #pip install django-cors-headers  important CORS
     'debug_toolbar',

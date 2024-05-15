@@ -49,6 +49,7 @@ class Category(models.Model):
     def __str__(self):
        return  (self.name)
     
+ 
    
     
 class Video(models.Model):
@@ -62,6 +63,7 @@ class Video(models.Model):
      short_file = models.FileField(upload_to='short', blank=True, null=True)
      img = models.ImageField(upload_to='bilder/',blank=True, null=True)
      category=  models.ManyToManyField(Category,through='CategoryListFilm')
+     evaluation=models.IntegerField(default=-1,null=True)
      
      def __str__(self):
        return  (self.title)   
@@ -98,10 +100,28 @@ class Serie(models.Model):
      category=  models.ManyToManyField(Category,through='CategoryListSeries')
      numSeasons = models.IntegerField()
      episodeList = models.ManyToManyField(Episode,through='EpisodeList')
+     evaluation=models.IntegerField(default=-1,null=True)    
      
      
      def __str__(self):
        return  self.title 
+   
+
+class UserSerieEvaluation(models.Model):
+    user=models.ForeignKey(User, on_delete=models.CASCADE)
+    serie=models.ForeignKey(Serie, on_delete=models.CASCADE)
+    evaluation = models.IntegerField(null=True)
+    
+    def __str__(self):
+       return  (self.user.username + " " +self.serie.title ) 
+   
+class UserFilmEvaluation(models.Model):
+    user=models.ForeignKey(User, on_delete=models.CASCADE)
+    video=models.ForeignKey(Video, on_delete=models.CASCADE)
+    evaluation = models.IntegerField(null=True)
+    
+    def __str__(self):
+       return  (self.user.username + " " +self.video.title )
      
 class EpisodeList(models.Model):
     episode=models.ForeignKey(Episode, on_delete=models.CASCADE)

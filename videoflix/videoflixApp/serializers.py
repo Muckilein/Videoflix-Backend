@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from .models import User,Video,Serie,Episode
+from .models import User,Video,Serie,Episode,UserFilmEvaluation,UserSerieEvaluation
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
+from django.db import transaction
 
 
 # class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -48,12 +49,14 @@ class RegisterSerializer(serializers.ModelSerializer):
   
 
 class VideoSerializer(serializers.ModelSerializer):
+   
     class Meta:
-        model = Video
-        fields = '__all__'
+        model = Video       
+        fields = '__all__'          
+   
 
-    def create(self, validated_data):
-        return Video.objects.create(**validated_data)
+    def create(self, validated_data):     
+       return Video.objects.create(**validated_data)
 
 class SerieSerializer(serializers.ModelSerializer):
     class Meta:
@@ -71,4 +74,22 @@ class EpisodeSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Episode.objects.create(**validated_data)
+      
+  
+class UserFilmEvaluationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserFilmEvaluation
+        fields = '__all__'
+
+    def create(self, validated_data):
+        return UserFilmEvaluation.objects.create(**validated_data)
+      
+class UserSeriesEvaluationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserSerieEvaluation
+        fields = '__all__'
+
+    def create(self, validated_data):
+        return UserSerieEvaluation.objects.create(**validated_data)
+      
       
