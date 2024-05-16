@@ -98,8 +98,7 @@ class EpisodeClipView(APIView):
 
     def get(self, request, format=None):
         queryset = Episode.objects.all()
-        serializer = self.serializer_class(queryset, many=True)
-        #serializer = self.serializer_class(queryset[0], many=False)        
+        serializer = self.serializer_class(queryset, many=True)             
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -122,7 +121,7 @@ class SerieView(APIView):
         data = getEvaluationsSeries(serializer.data, request.user) 
         print(data)             
         return Response(data, status=status.HTTP_200_OK)            
-        #return Response(serializer.data, status=status.HTTP_200_OK)
+       
     
 class videoEvaluation(generics.CreateAPIView): 
     
@@ -136,17 +135,25 @@ class videoEvaluation(generics.CreateAPIView):
         return Response(allEvalUser.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
-        data = request.data
-        #print(data)
+        data = request.data       
         eval = data['eval']
         videoId = data['filmId']
-        current_user = request.user
-        #print(current_user)
+        current_user = request.user      
         video = Video.objects.filter(id = videoId)[0]        
         evaluation = UserFilmEvaluation.objects.create(user=current_user,video = video,evaluation = eval)
         allEval = UserFilmEvaluation.objects.filter(user = current_user)
         allEvalUser= UserFilmEvaluationSerializer(allEval,many=True)
         return Response(allEvalUser.data, status=status.HTTP_200_OK)
+    def put(self, request, format=None):
+        data = request.data        
+        eval = data['eval']
+        videoId = data['filmId']
+        current_user = request.user       
+        video = Video.objects.filter(id = videoId)[0]              
+        evaluation = UserFilmEvaluation.objects.filter(user = current_user, video = video)[0] 
+        evaluation.evaluation = eval
+        evaluation.save()         
+        return Response('OK')
     
 class serieEvaluation(generics.CreateAPIView): 
     
@@ -160,17 +167,27 @@ class serieEvaluation(generics.CreateAPIView):
         return Response(allEvalUser.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
-        data = request.data
-        #print(data)
+        data = request.data        
         eval = data['eval']
         videoId = data['filmId']
-        current_user = request.user
-        #print(current_user)
+        current_user = request.user       
         serie = Serie.objects.filter(id = videoId)[0]       
         evaluation = UserSerieEvaluation.objects.create(user=current_user,serie = serie,evaluation = eval)
-        allEval = UserSerieEvaluation.objects.filter(user = current_user)
-        allEvalUser= UserSeriesEvaluationSerializer(allEval,many=True)
-        return Response(allEvalUser.data, status=status.HTTP_200_OK)
+        # allEval = UserSerieEvaluation.objects.filter(user = current_user)
+        # allEvalUser= UserSeriesEvaluationSerializer(allEval,many=True)
+        #return Response(allEvalUser.data, status=status.HTTP_200_OK)
+        return Response('OK')
+    
+    def put(self, request, format=None):
+        data = request.data        
+        eval = data['eval']
+        videoId = data['filmId']
+        current_user = request.user       
+        serie = Serie.objects.filter(id = videoId)[0]              
+        evaluation = UserSerieEvaluation.objects.filter(user = current_user, serie = serie)[0] 
+        evaluation.evaluation = eval
+        evaluation.save()         
+        return Response('OK')
       
 
     
