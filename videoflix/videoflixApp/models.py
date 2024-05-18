@@ -105,7 +105,14 @@ class Serie(models.Model):
      
      def __str__(self):
        return  self.title 
-   
+
+class MyListe(models.Model):
+    user=models.ForeignKey(User, on_delete=models.CASCADE) 
+    type = models.CharField(max_length=100) 
+    idObject=models.IntegerField()
+    
+    def __str__(self):
+       return  self.user.username + " " + self.type  
 
 class UserSerieEvaluation(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE)

@@ -8,8 +8,8 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from .serializers import RegisterSerializer,VideoSerializer,EpisodeSerializer,SerieSerializer,UserFilmEvaluationSerializer,UserSeriesEvaluationSerializer
-from .models import User,Video,Episode,Serie,UserFilmEvaluation,UserSerieEvaluation
+from .serializers import RegisterSerializer,VideoSerializer,EpisodeSerializer,SerieSerializer,UserFilmEvaluationSerializer,UserSeriesEvaluationSerializer,MyListeSerializer
+from .models import User,Video,Episode,Serie,UserFilmEvaluation,UserSerieEvaluation,MyListe
 from .methods import *
 
 
@@ -47,7 +47,7 @@ class videoClipView(APIView):
         queryset = Video.objects.all()
         serializer = self.serializer_class(queryset, many=True)
         data = getEvaluationsFilms(serializer.data, request.user) 
-        print(data)             
+                    
         return Response(data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -119,7 +119,7 @@ class SerieView(APIView):
         serializer = self.serializer_class(queryset, many=True)     
         createEpisodeListAll(serializer.data) 
         data = getEvaluationsSeries(serializer.data, request.user) 
-        print(data)             
+                  
         return Response(data, status=status.HTTP_200_OK)            
        
     
@@ -187,6 +187,55 @@ class serieEvaluation(generics.CreateAPIView):
         evaluation = UserSerieEvaluation.objects.filter(user = current_user, serie = serie)[0] 
         evaluation.evaluation = eval
         evaluation.save()         
+        return Response('OK')
+    
+    
+def makeListData(data):
+    idList = []    
+    for elem in data:
+        idList.append(elem['idObject'])    
+    return idList
+    
+def getFilms(data,user):
+      videoSerielizer = VideoSerializer
+      list = makeListData(data)
+      print(list)
+      queryset = Video.objects.filter(pk__in=list)
+      serializer = videoSerielizer(queryset, many=True)
+      dataFilm = getEvaluationsFilms(serializer.data, user) 
+      return dataFilm 
+  
+def getSerie(data,user):
+        serieSerializer = SerieSerializer  
+        list = makeListData(data)
+        queryset = Serie.objects.filter(pk__in=list)                
+        serializer = serieSerializer(queryset, many=True)     
+        createEpisodeListAll(serializer.data) 
+        data = getEvaluationsSeries(serializer.data,user) 
+        return data
+    
+    
+class getMyList(generics.CreateAPIView):     
+    authentication_classes =[TokenAuthentication]
+    permission_classes =[IsAuthenticated]   
+    
+    def get(self, request, format=None):
+        current_user = request.user        
+        myListSeries = MyListe.objects.filter(user = current_user, type = "Serie")
+        myListFilm = MyListe.objects.filter(user = current_user, type = "Film")
+        listDataSerie= MyListeSerializer(myListSeries,many=True).data 
+        listDataFilm= MyListeSerializer(myListFilm,many=True).data 
+        print(listDataFilm)
+        serie = getSerie(listDataSerie,current_user)  
+        film = getFilms(listDataFilm,current_user)      
+        return Response(film+serie, status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):    
+       
+        return Response('OK')
+    
+    def put(self, request, format=None):
+           
         return Response('OK')
       
 

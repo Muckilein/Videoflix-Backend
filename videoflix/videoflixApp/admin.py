@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User,Video,Episode,Serie,Category,CategoryListFilm,CategoryListSeries,EpisodeList,UserSerieEvaluation,UserFilmEvaluation
+from .models import User,Video,Episode,Serie,Category,CategoryListFilm,CategoryListSeries,EpisodeList,UserSerieEvaluation,UserFilmEvaluation,MyListe
 #from import_export import resources
 
 @admin.register(User)
@@ -66,7 +66,13 @@ class UserFilmEvaluationAdmin(admin.ModelAdmin):
      list_display = ('user','video','evaluation')    
      search_fields = ('user',)
      
-     
+@admin.register (MyListe)
+class MyListeAdmin(admin.ModelAdmin): 
+     fields = ('user','type','idObject')  
+     list_display = ('user','type','idObject')    
+     search_fields = ('user',)
+          
+
      
 # class VideoResource(resources.ModelResource):
 
