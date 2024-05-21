@@ -47,7 +47,7 @@ class videoClipView(APIView):
         queryset = Video.objects.all()
         serializer = self.serializer_class(queryset, many=True)
         data = getEvaluationsFilms(serializer.data, request.user) 
-                    
+        getInList(data,request.user,'Film')             
         return Response(data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -56,40 +56,7 @@ class videoClipView(APIView):
         if serializer.is_valid(raise_exception=True):
              serializer.save()
              msg = {'msg':'Add Clip'}
-             return Response(msg, status=status.HTTP_201_CREATED)
- 
-def getEvaluated(data, keyword):
-    list=[]
-    for d in data:
-        ev = {"vID":d[keyword], "evaluation":d['evaluation']}
-        list.append(ev)  
-    return list;
-       
-
-def getEvaluationsFilms(videoData, currentUser):
-    
-    filmEvaluation = UserFilmEvaluation.objects.filter(user=currentUser)
-    serilizer = UserFilmEvaluationSerializer(filmEvaluation, many = True);   
-    list = getEvaluated(serilizer.data,'video')   
-    for v in videoData:
-        setEvaluation(v, list)
-    return videoData
-
-def getEvaluationsSeries(videoData, currentUser):
-    
-    filmEvaluation = UserSerieEvaluation.objects.filter(user=currentUser)
-    serilizer = UserSeriesEvaluationSerializer(filmEvaluation, many = True);   
-    list = getEvaluated(serilizer.data,'serie')   
-    for v in videoData:
-        setEvaluation(v, list)
-    return videoData
-    
-def setEvaluation(vData,evalList):
-    for e in evalList:
-        if vData['id']== e['vID']:
-            vData['evaluation']= e['evaluation']
-            break
-    
+             return Response(msg, status=status.HTTP_201_CREATED)    
         
     
 
@@ -108,10 +75,16 @@ class EpisodeClipView(APIView):
              serializer.save()
              msg = {'msg':'Add Clip'}
              return Response(msg, status=status.HTTP_201_CREATED)
- 
-          
+
+
+def getInList(data,currentUser,t):
+    listSerialister = MyListeSerializer
+    list = MyListe.objects.filter(user=currentUser,type=t)
+    listData = listSerialister(list,many=True).data 
+    updateData(data,listData) #in methode.py
+        
 class SerieView(APIView):
-    serializer_class = SerieSerializer 
+    serializer_class = SerieSerializer
    
 
     def get(self, request, format=None):
@@ -119,7 +92,7 @@ class SerieView(APIView):
         serializer = self.serializer_class(queryset, many=True)     
         createEpisodeListAll(serializer.data) 
         data = getEvaluationsSeries(serializer.data, request.user) 
-                  
+        getInList(data,request.user,'Serie')          
         return Response(data, status=status.HTTP_200_OK)            
        
     
@@ -172,10 +145,7 @@ class serieEvaluation(generics.CreateAPIView):
         videoId = data['filmId']
         current_user = request.user       
         serie = Serie.objects.filter(id = videoId)[0]       
-        evaluation = UserSerieEvaluation.objects.create(user=current_user,serie = serie,evaluation = eval)
-        # allEval = UserSerieEvaluation.objects.filter(user = current_user)
-        # allEvalUser= UserSeriesEvaluationSerializer(allEval,many=True)
-        #return Response(allEvalUser.data, status=status.HTTP_200_OK)
+        evaluation = UserSerieEvaluation.objects.create(user=current_user,serie = serie,evaluation = eval)      
         return Response('OK')
     
     def put(self, request, format=None):
@@ -190,30 +160,7 @@ class serieEvaluation(generics.CreateAPIView):
         return Response('OK')
     
     
-def makeListData(data):
-    idList = []    
-    for elem in data:
-        idList.append(elem['idObject'])    
-    return idList
-    
-def getFilms(data,user):
-      videoSerielizer = VideoSerializer
-      list = makeListData(data)
-      print(list)
-      queryset = Video.objects.filter(pk__in=list)
-      serializer = videoSerielizer(queryset, many=True)
-      dataFilm = getEvaluationsFilms(serializer.data, user) 
-      return dataFilm 
-  
-def getSerie(data,user):
-        serieSerializer = SerieSerializer  
-        list = makeListData(data)
-        queryset = Serie.objects.filter(pk__in=list)                
-        serializer = serieSerializer(queryset, many=True)     
-        createEpisodeListAll(serializer.data) 
-        data = getEvaluationsSeries(serializer.data,user) 
-        return data
-    
+ 
     
 class getMyList(generics.CreateAPIView):     
     authentication_classes =[TokenAuthentication]
@@ -230,12 +177,20 @@ class getMyList(generics.CreateAPIView):
         film = getFilms(listDataFilm,current_user)      
         return Response(film+serie, status=status.HTTP_200_OK)
 
-    def post(self, request, format=None):    
-       
+    def post(self, request, format=None): 
+        type = request.data['type']
+        idofObject = request.data['idObject'] 
+        user= request.user 
+        inListObject = MyListe.objects.create(user=user,type = type,idObject=idofObject)
+        print(inListObject)
         return Response('OK')
     
-    def put(self, request, format=None):
-           
+    def delete(self, request, format=None):
+        type = request.data['type']
+        idofObject = request.data['idObject']
+        user= request.user
+        object = MyListe.objects.filter(user=user,type = type,idObject=idofObject)
+        object.delete()
         return Response('OK')
       
 

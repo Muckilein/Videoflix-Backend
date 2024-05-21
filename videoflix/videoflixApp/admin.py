@@ -10,8 +10,8 @@ class UserAdmin(admin.ModelAdmin):
     
 @admin.register (Video)
 class VideoAdmin(admin.ModelAdmin): 
-     fields = ('title','created_at','description','video_file','genre','type','fsk','short_file','img','evaluation') # nitice category is a many-to-many field and not shown here
-     list_display = ('title','created_at','description','video_file','genre','type','fsk','short_file','img','evaluation')    
+     fields = ('title','created_at','description','video_file','genre','type','fsk','short_file','img','evaluation','inList') # nitice category is a many-to-many field and not shown here
+     list_display = ('title','created_at','description','video_file','genre','type','fsk','short_file','img','evaluation','inList')    
      search_fields = ('title',)
      
      
@@ -29,8 +29,8 @@ class CategoryAdmin(admin.ModelAdmin):
        
 @admin.register (Serie)
 class SeriesAdmin(admin.ModelAdmin): 
-     fields =  ('title','description','genre','img','short_file','type','numSeasons','evaluation')  
-     list_display = ('title','description','genre','img','short_file','type','numSeasons','evaluation')    
+     fields =  ('title','description','genre','img','short_file','type','numSeasons','evaluation','inList')  
+     list_display = ('title','description','genre','img','short_file','type','numSeasons','evaluation','inList')    
      search_fields = ('title',)      
      
 

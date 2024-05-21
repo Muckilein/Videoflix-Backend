@@ -64,6 +64,7 @@ class Video(models.Model):
      img = models.ImageField(upload_to='bilder/',blank=True, null=True)
      category=  models.ManyToManyField(Category,through='CategoryListFilm')
      evaluation=models.IntegerField(default=-1,null=True)
+     inList = models.BooleanField(default=False)  
      
      def __str__(self):
        return  (self.title)   
@@ -100,7 +101,8 @@ class Serie(models.Model):
      category=  models.ManyToManyField(Category,through='CategoryListSeries')
      numSeasons = models.IntegerField()
      episodeList = models.ManyToManyField(Episode,through='EpisodeList')
-     evaluation=models.IntegerField(default=-1,null=True)    
+     evaluation=models.IntegerField(default=-1,null=True)
+     inList = models.BooleanField(default=False)    
      
      
      def __str__(self):
