@@ -1,5 +1,5 @@
-from .serializers import EpisodeSerializer,VideoSerializer,UserFilmEvaluationSerializer,SerieSerializer,UserSeriesEvaluationSerializer
-from .models import Episode,Video,UserFilmEvaluation,Serie,UserSerieEvaluation
+from .serializers import EpisodeSerializer,VideoSerializer,UserFilmEvaluationSerializer,SerieSerializer,UserSeriesEvaluationSerializer,CategorySerializer
+from .models import Episode,Video,UserFilmEvaluation,Serie,UserSerieEvaluation,Category
 
 def createEpisodeList(serializedData):
       #Auslagern in methodes.py und für alle und nicht nur für [0]
@@ -36,24 +36,43 @@ def setEvaluation(vData,evalList):
         if vData['id']== e['vID']:
             vData['evaluation']= e['evaluation']
             break
+
+def setCat(vDataCat,catData):
+    #  print(vDataCat)
+    #  print(catData)
+     list =[]
+     for vC in vDataCat:
+          for c in catData:
+              if vC == c['id']:
+                   list.append(c)
+    #  print(list)            
+     return list                    
+           
+
        
 
-def getEvaluationsFilms(videoData, currentUser):
+def adjustFilm(videoData, currentUser):
+    cat = Category.objects.all()
+    categoryData = CategorySerializer(cat,many=True).data 
     
     filmEvaluation = UserFilmEvaluation.objects.filter(user=currentUser)
     serilizer = UserFilmEvaluationSerializer(filmEvaluation, many = True);   
     list = getEvaluated(serilizer.data,'video')   
     for v in videoData:
         setEvaluation(v, list)
+        v['category'] = setCat(v['category'],categoryData) 
     return videoData 
 
-def getEvaluationsSeries(videoData, currentUser):
+def adjustSerie(videoData, currentUser):
+    cat = Category.objects.all()
+    categoryData = CategorySerializer(cat,many=True).data 
     
-    filmEvaluation = UserSerieEvaluation.objects.filter(user=currentUser)
-    serilizer = UserSeriesEvaluationSerializer(filmEvaluation, many = True);   
+    seriesEvaluation = UserSerieEvaluation.objects.filter(user=currentUser)
+    serilizer = UserSeriesEvaluationSerializer(seriesEvaluation, many = True);   
     list = getEvaluated(serilizer.data,'serie')   
     for v in videoData:
         setEvaluation(v, list)
+        v['category'] = setCat(v['category'],categoryData)        
     return videoData            
                 
 def makeListData(data):
@@ -68,7 +87,7 @@ def getFilms(data,user):
       print(list)
       queryset = Video.objects.filter(pk__in=list)
       serializer = videoSerielizer(queryset, many=True)
-      dataFilm = getEvaluationsFilms(serializer.data, user) 
+      dataFilm = adjustFilm(serializer.data, user) 
       return dataFilm 
   
 def getSerie(data,user):
@@ -77,5 +96,5 @@ def getSerie(data,user):
         queryset = Serie.objects.filter(pk__in=list)                
         serializer = serieSerializer(queryset, many=True)     
         createEpisodeListAll(serializer.data) 
-        data = getEvaluationsSeries(serializer.data,user) 
+        data = adjustSerie(serializer.data,user) 
         return data

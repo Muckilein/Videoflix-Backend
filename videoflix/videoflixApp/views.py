@@ -8,8 +8,8 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from .serializers import RegisterSerializer,VideoSerializer,EpisodeSerializer,SerieSerializer,UserFilmEvaluationSerializer,UserSeriesEvaluationSerializer,MyListeSerializer
-from .models import User,Video,Episode,Serie,UserFilmEvaluation,UserSerieEvaluation,MyListe
+from .serializers import RegisterSerializer,VideoSerializer,EpisodeSerializer,SerieSerializer,UserFilmEvaluationSerializer,UserSeriesEvaluationSerializer,MyListeSerializer,CategorySerializer
+from .models import User,Video,Episode,Serie,UserFilmEvaluation,UserSerieEvaluation,MyListe,Category
 from .methods import *
 
 
@@ -46,7 +46,7 @@ class videoClipView(APIView):
     def get(self, request, format=None):
         queryset = Video.objects.all()
         serializer = self.serializer_class(queryset, many=True)
-        data = getEvaluationsFilms(serializer.data, request.user) 
+        data = adjustFilm(serializer.data, request.user) 
         getInList(data,request.user,'Film')             
         return Response(data, status=status.HTTP_200_OK)
 
@@ -82,16 +82,26 @@ def getInList(data,currentUser,t):
     list = MyListe.objects.filter(user=currentUser,type=t)
     listData = listSerialister(list,many=True).data 
     updateData(data,listData) #in methode.py
+    
+def makeCategoryListSerie(dataV,catData):   
+   for d in dataV:
+        d['category'] = makeCategory(d,catData)    
+
+def makeCategory(dataObj):   
+  pass
+    
         
 class SerieView(APIView):
-    serializer_class = SerieSerializer
-   
+    serializer_class = SerieSerializer   
 
     def get(self, request, format=None):
         queryset = Serie.objects.all()                
         serializer = self.serializer_class(queryset, many=True)     
-        createEpisodeListAll(serializer.data) 
-        data = getEvaluationsSeries(serializer.data, request.user) 
+        createEpisodeListAll(serializer.data)              
+        # cat = serializer.data[0]['category']
+        # print(cat)
+        data = adjustSerie(serializer.data, request.user) 
+        
         getInList(data,request.user,'Serie')          
         return Response(data, status=status.HTTP_200_OK)            
        
@@ -194,4 +204,15 @@ class getMyList(generics.CreateAPIView):
         return Response('OK')
       
 
+class getCategory(generics.CreateAPIView):     
+    authentication_classes =[TokenAuthentication]
+    permission_classes =[IsAuthenticated]   
     
+    def get(self, request, format=None):
+        current_user = request.user  
+        category = Category.objects.all();      
+        dataCat = CategorySerializer(category,many=True).data      
+        return Response(dataCat, status=status.HTTP_200_OK)
+
+   
+      

@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-from videoflixApp.views import LoginView,RegisterView,videoClipView,EpisodeClipView,SerieView,videoEvaluation,serieEvaluation,getMyList
+from videoflixApp.views import LoginView,RegisterView,videoClipView,EpisodeClipView,SerieView,videoEvaluation,serieEvaluation,getMyList,getCategory
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -32,4 +32,5 @@ urlpatterns = [
     path('videoEvaluation/', videoEvaluation.as_view()),
     path('serieEvaluation/', serieEvaluation.as_view()),
     path('getMyList/', getMyList.as_view()),
+    path('getCategory/', getCategory.as_view()),
 ]+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
