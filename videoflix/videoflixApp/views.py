@@ -46,8 +46,8 @@ class videoClipView(APIView):
     def get(self, request, format=None):
         queryset = Video.objects.all()
         serializer = self.serializer_class(queryset, many=True)
-        data = adjustFilm(serializer.data, request.user) 
-        getInList(data,request.user,'Film')             
+        data = adjustFilm(serializer.data, request.user,'Film') 
+        #getInList(data,request.user,'Film')             
         return Response(data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -77,11 +77,11 @@ class EpisodeClipView(APIView):
              return Response(msg, status=status.HTTP_201_CREATED)
 
 
-def getInList(data,currentUser,t):
-    listSerialister = MyListeSerializer
-    list = MyListe.objects.filter(user=currentUser,type=t)
-    listData = listSerialister(list,many=True).data 
-    updateData(data,listData) #in methode.py
+# def getInList(data,currentUser,t):
+#     listSerialister = MyListeSerializer
+#     list = MyListe.objects.filter(user=currentUser,type=t)
+#     listData = listSerialister(list,many=True).data 
+#     updateData(data,listData) 
     
 def makeCategoryListSerie(dataV,catData):   
    for d in dataV:
@@ -96,13 +96,9 @@ class SerieView(APIView):
 
     def get(self, request, format=None):
         queryset = Serie.objects.all()                
-        serializer = self.serializer_class(queryset, many=True)     
-        createEpisodeListAll(serializer.data)              
-        # cat = serializer.data[0]['category']
-        # print(cat)
-        data = adjustSerie(serializer.data, request.user) 
-        
-        getInList(data,request.user,'Serie')          
+        serializer = self.serializer_class(queryset, many=True)  
+        data = adjustSerie(serializer.data, request.user,'Serie')         
+        # getInList(data,request.user,'Serie')          
         return Response(data, status=status.HTTP_200_OK)            
        
     

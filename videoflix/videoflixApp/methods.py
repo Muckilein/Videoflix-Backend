@@ -1,8 +1,8 @@
-from .serializers import EpisodeSerializer,VideoSerializer,UserFilmEvaluationSerializer,SerieSerializer,UserSeriesEvaluationSerializer,CategorySerializer
-from .models import Episode,Video,UserFilmEvaluation,Serie,UserSerieEvaluation,Category
+from .serializers import EpisodeSerializer,VideoSerializer,UserFilmEvaluationSerializer,SerieSerializer,UserSeriesEvaluationSerializer,CategorySerializer,MyListeSerializer
+from .models import Episode,Video,UserFilmEvaluation,Serie,UserSerieEvaluation,Category,MyListe
 
 def createEpisodeList(serializedData):
-      #Auslagern in methodes.py und für alle und nicht nur für [0]
+    #Auslagern in methodes.py und für alle und nicht nur für [0]
     serializer_Episodes = EpisodeSerializer  
       
     episodeList =serializedData['episodeList']
@@ -10,16 +10,9 @@ def createEpisodeList(serializedData):
     serializedEpisodes = serializer_Episodes(querysetEpisodes, many=True)    
     serializedData['episodeList'] = serializedEpisodes.data  
     return serializedData  
-
   
-
-def createEpisodeListAll(serializedData):
-    for series in serializedData:
-        series = createEpisodeList(series) 
-        
          
-def updateData(data,listData):
-    for d in data:
+def updateData(d,listData):   
         for ld in listData:
             if ld['idObject']== d['id']:
                 d['inList']=True
@@ -38,39 +31,47 @@ def setEvaluation(vData,evalList):
             break
 
 def setCat(vDataCat,catData):
-    #  print(vDataCat)
-    #  print(catData)
+   
      list =[]
      for vC in vDataCat:
           for c in catData:
               if vC == c['id']:
-                   list.append(c)
-    #  print(list)            
-     return list                    
-           
-
-       
-
-def adjustFilm(videoData, currentUser):
+                   list.append(c)               
+     return list                 
+          
+      
+def adjustFilm(videoData, currentUser,t):
     cat = Category.objects.all()
     categoryData = CategorySerializer(cat,many=True).data 
+    
+    listSerialister = MyListeSerializer
+    list = MyListe.objects.filter(user=currentUser,type=t)
+    listData = listSerialister(list,many=True).data
     
     filmEvaluation = UserFilmEvaluation.objects.filter(user=currentUser)
     serilizer = UserFilmEvaluationSerializer(filmEvaluation, many = True);   
     list = getEvaluated(serilizer.data,'video')   
     for v in videoData:
+        updateData(v,listData)
         setEvaluation(v, list)
         v['category'] = setCat(v['category'],categoryData) 
     return videoData 
 
-def adjustSerie(videoData, currentUser):
+def adjustSerie(videoData, currentUser,t):
     cat = Category.objects.all()
-    categoryData = CategorySerializer(cat,many=True).data 
+    categoryData = CategorySerializer(cat,many=True).data
+    
+    listSerialister = MyListeSerializer
+    list = MyListe.objects.filter(user=currentUser,type=t)
+    listData = listSerialister(list,many=True).data 
+     
     
     seriesEvaluation = UserSerieEvaluation.objects.filter(user=currentUser)
     serilizer = UserSeriesEvaluationSerializer(seriesEvaluation, many = True);   
     list = getEvaluated(serilizer.data,'serie')   
     for v in videoData:
+        updateData(v,listData)
+        createEpisodeList(v)
         setEvaluation(v, list)
         v['category'] = setCat(v['category'],categoryData)        
     return videoData            
@@ -87,14 +88,13 @@ def getFilms(data,user):
       print(list)
       queryset = Video.objects.filter(pk__in=list)
       serializer = videoSerielizer(queryset, many=True)
-      dataFilm = adjustFilm(serializer.data, user) 
+      dataFilm = adjustFilm(serializer.data, user,'Film') 
       return dataFilm 
   
 def getSerie(data,user):
         serieSerializer = SerieSerializer  
         list = makeListData(data)
         queryset = Serie.objects.filter(pk__in=list)                
-        serializer = serieSerializer(queryset, many=True)     
-        createEpisodeListAll(serializer.data) 
-        data = adjustSerie(serializer.data,user) 
+        serializer = serieSerializer(queryset, many=True)  
+        data = adjustSerie(serializer.data,user,'Serie') 
         return data
