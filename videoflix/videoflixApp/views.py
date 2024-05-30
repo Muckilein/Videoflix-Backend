@@ -8,8 +8,8 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from .serializers import RegisterSerializer,VideoSerializer,EpisodeSerializer,SerieSerializer,UserFilmEvaluationSerializer,UserSeriesEvaluationSerializer,MyListeSerializer,CategorySerializer
-from .models import User,Video,Episode,Serie,UserFilmEvaluation,UserSerieEvaluation,MyListe,Category
+from .serializers import CategoryListFilmSerializer,CategoryListSeriesSerializer,RegisterSerializer,VideoSerializer,EpisodeSerializer,SerieSerializer,UserFilmEvaluationSerializer,UserSeriesEvaluationSerializer,MyListeSerializer,CategorySerializer
+from .models import User,Video,Episode,Serie,UserFilmEvaluation,UserSerieEvaluation,MyListe,Category,CategoryListSeries,CategoryListFilm
 from .methods import *
 
 
@@ -76,20 +76,7 @@ class EpisodeClipView(APIView):
              msg = {'msg':'Add Clip'}
              return Response(msg, status=status.HTTP_201_CREATED)
 
-
-# def getInList(data,currentUser,t):
-#     listSerialister = MyListeSerializer
-#     list = MyListe.objects.filter(user=currentUser,type=t)
-#     listData = listSerialister(list,many=True).data 
-#     updateData(data,listData) 
-    
-def makeCategoryListSerie(dataV,catData):   
-   for d in dataV:
-        d['category'] = makeCategory(d,catData)    
-
-def makeCategory(dataObj):   
-  pass
-    
+   
         
 class SerieView(APIView):
     serializer_class = SerieSerializer   
@@ -133,6 +120,42 @@ class videoEvaluation(generics.CreateAPIView):
         evaluation.evaluation = eval
         evaluation.save()         
         return Response('OK')
+    
+def getIdListFromCategory(data):
+    idList = []    
+    for elem in data:
+        idList.append(elem['video'])    
+    return idList
+    
+class categoryItemDetail(APIView):
+  
+    # authentication_classes =[TokenAuthentication]
+    # permission_classes =[IsAuthenticated]
+    
+    def get(self,request,pk):  #self ist wichtig
+        cat = Category.objects.filter(id = pk)[0]
+        s=CategoryListSeries.objects.filter(category = cat)
+        f=CategoryListFilm.objects.filter(category = cat)
+        current_user=request.user
+        filmSer=CategoryListFilmSerializer(s, many=True).data
+        serSer=CategoryListSeriesSerializer(f, many=True).data
+        print(filmSer)
+        print(serSer)
+        filmSerID=getIdListFromCategory(filmSer)
+        serSerID=getIdListFromCategory(serSer)
+        print(filmSerID)
+        print(serSerID)
+        serie = getSerie(serSerID,current_user)  
+        film = getFilms(filmSerID,current_user)     
+   
+        return Response(film+serie, status=status.HTTP_200_OK)
+    
+        
+        #   queryset = Video.objects.all()
+        # serializer = self.serializer_class(queryset, many=True)
+        # data = adjustFilm(serializer.data, request.user,'Film') 
+        #getInList(data,request.user,'Film')             
+        
     
 class serieEvaluation(generics.CreateAPIView): 
     
@@ -178,9 +201,12 @@ class getMyList(generics.CreateAPIView):
         myListFilm = MyListe.objects.filter(user = current_user, type = "Film")
         listDataSerie= MyListeSerializer(myListSeries,many=True).data 
         listDataFilm= MyListeSerializer(myListFilm,many=True).data 
+        idListFilm= makeListData(listDataFilm)
+        idListSerie= makeListData(listDataSerie)
+        print('listDataFilm')
         print(listDataFilm)
-        serie = getSerie(listDataSerie,current_user)  
-        film = getFilms(listDataFilm,current_user)      
+        serie = getSerie(idListSerie,current_user)  
+        film = getFilms(idListFilm,current_user)      
         return Response(film+serie, status=status.HTTP_200_OK)
 
     def post(self, request, format=None): 

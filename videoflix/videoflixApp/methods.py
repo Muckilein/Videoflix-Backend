@@ -83,18 +83,15 @@ def makeListData(data):
     return idList
 
 def getFilms(data,user):
-      videoSerielizer = VideoSerializer
-      list = makeListData(data)
-      print(list)
-      queryset = Video.objects.filter(pk__in=list)
+      videoSerielizer = VideoSerializer     
+      queryset = Video.objects.filter(pk__in=data)
       serializer = videoSerielizer(queryset, many=True)
       dataFilm = adjustFilm(serializer.data, user,'Film') 
       return dataFilm 
   
 def getSerie(data,user):
-        serieSerializer = SerieSerializer  
-        list = makeListData(data)
-        queryset = Serie.objects.filter(pk__in=list)                
+        serieSerializer = SerieSerializer         
+        queryset = Serie.objects.filter(pk__in=data)                
         serializer = serieSerializer(queryset, many=True)  
         data = adjustSerie(serializer.data,user,'Serie') 
         return data

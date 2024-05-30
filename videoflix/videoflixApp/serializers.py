@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User,Video,Serie,Episode,UserFilmEvaluation,UserSerieEvaluation,MyListe,Category,CategoryListSeries
+from .models import User,Video,Serie,Episode,UserFilmEvaluation,UserSerieEvaluation,MyListe,Category,CategoryListSeries,CategoryListFilm
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 from django.db import transaction
@@ -117,3 +117,11 @@ class CategoryListSeriesSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return CategoryListSeries.objects.create(**validated_data)  
+
+class CategoryListFilmSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CategoryListFilm
+        fields = '__all__'
+
+    def create(self, validated_data):
+        return CategoryListFilm.objects.create(**validated_data)  
