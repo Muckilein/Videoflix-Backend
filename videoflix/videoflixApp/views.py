@@ -46,7 +46,7 @@ class videoClipView(APIView):
     def get(self, request, format=None):
         queryset = Video.objects.all()
         serializer = self.serializer_class(queryset, many=True)
-        data = adjustFilm(serializer.data, request.user,'Film') 
+        data = adjustFilm(serializer.data, request.user) 
         #getInList(data,request.user,'Film')             
         return Response(data, status=status.HTTP_200_OK)
 
@@ -61,6 +61,9 @@ class videoClipView(APIView):
     
 
 class EpisodeClipView(APIView):
+    authentication_classes =[TokenAuthentication]
+    permission_classes =[IsAuthenticated] 
+    
     serializer_class = EpisodeSerializer
 
     def get(self, request, format=None):
@@ -79,12 +82,15 @@ class EpisodeClipView(APIView):
    
         
 class SerieView(APIView):
-    serializer_class = SerieSerializer   
+    serializer_class = SerieSerializer  
+    
+    authentication_classes =[TokenAuthentication]
+    permission_classes =[IsAuthenticated]  
 
     def get(self, request, format=None):
         queryset = Serie.objects.all()                
         serializer = self.serializer_class(queryset, many=True)  
-        data = adjustSerie(serializer.data, request.user,'Serie')         
+        data = adjustSerie(serializer.data, request.user)         
         # getInList(data,request.user,'Serie')          
         return Response(data, status=status.HTTP_200_OK)            
        
@@ -121,41 +127,32 @@ class videoEvaluation(generics.CreateAPIView):
         evaluation.save()         
         return Response('OK')
     
-def getIdListFromCategory(data):
-    idList = []    
-    for elem in data:
-        idList.append(elem['video'])    
-    return idList
+
     
 class categoryItemDetail(APIView):
+    """
+    get: returns the JSON with all information of all series of films with the given category
+    """
   
-    # authentication_classes =[TokenAuthentication]
-    # permission_classes =[IsAuthenticated]
+    authentication_classes =[TokenAuthentication]
+    permission_classes =[IsAuthenticated]
     
     def get(self,request,pk):  #self ist wichtig
         cat = Category.objects.filter(id = pk)[0]
+        # get all Series data
         s=CategoryListSeries.objects.filter(category = cat)
+        serSer=CategoryListSeriesSerializer(f, many=True).data 
+        serSerID=getIdListFromCategory(serSer)      
+        serie = getSerie(serSerID,current_user)   
+        # get all Series data   
         f=CategoryListFilm.objects.filter(category = cat)
         current_user=request.user
-        filmSer=CategoryListFilmSerializer(s, many=True).data
-        serSer=CategoryListSeriesSerializer(f, many=True).data
-        print(filmSer)
-        print(serSer)
-        filmSerID=getIdListFromCategory(filmSer)
-        serSerID=getIdListFromCategory(serSer)
-        print(filmSerID)
-        print(serSerID)
-        serie = getSerie(serSerID,current_user)  
+        filmSer=CategoryListFilmSerializer(s, many=True).data       
+        filmSerID=getIdListFromCategory(filmSer)       
         film = getFilms(filmSerID,current_user)     
    
-        return Response(film+serie, status=status.HTTP_200_OK)
-    
-        
-        #   queryset = Video.objects.all()
-        # serializer = self.serializer_class(queryset, many=True)
-        # data = adjustFilm(serializer.data, request.user,'Film') 
-        #getInList(data,request.user,'Film')             
-        
+        return Response(film+serie, status=status.HTTP_200_OK)         
+                    
     
 class serieEvaluation(generics.CreateAPIView): 
     
@@ -186,8 +183,7 @@ class serieEvaluation(generics.CreateAPIView):
         evaluation = UserSerieEvaluation.objects.filter(user = current_user, serie = serie)[0] 
         evaluation.evaluation = eval
         evaluation.save()         
-        return Response('OK')
-    
+        return Response('OK')  
     
  
     
@@ -230,8 +226,7 @@ class getCategory(generics.CreateAPIView):
     authentication_classes =[TokenAuthentication]
     permission_classes =[IsAuthenticated]   
     
-    def get(self, request, format=None):
-        current_user = request.user  
+    def get(self, request, format=None):       
         category = Category.objects.all();      
         dataCat = CategorySerializer(category,many=True).data      
         return Response(dataCat, status=status.HTTP_200_OK)
