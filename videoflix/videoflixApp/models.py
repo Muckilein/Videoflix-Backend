@@ -48,8 +48,6 @@ class Category(models.Model):
     
     def __str__(self):
        return  (self.name)
-    
- 
    
     
 class Video(models.Model):
@@ -74,22 +72,22 @@ class CategoryListFilm(models.Model):
     video= models.ForeignKey(Video, on_delete=models.CASCADE) 
     
     def __str__(self):
-       return  (self.category.name + " " +self.video.title)  
+       return  (self.category.name + " " +self.video.title) 
 
+   
 class Episode(models.Model):
     title=models.CharField(max_length=100,unique=True)
     description = models.CharField(max_length=500)   
     created_at = models.DateField(default=date.today)    
-    video_file = models.FileField(upload_to='Episodes', blank=True, null=True)
-    # season = models.CharField(max_length=100,default=' ') 
-    # episode = models.CharField(max_length=100,default=' ')  
+    video_file = models.FileField(upload_to='Episodes', blank=True, null=True)  
     season = models.IntegerField(default=1)
     episode = models.IntegerField(default=1)   
     img = models.ImageField(upload_to='bilder/',blank=True, null=True) 
-    #serie= models.ForeignKey(Serie, on_delete=models.CASCADE) 
+   # serie= models.ForeignKey(Serie, on_delete=models.CASCADE,null=True) Series ans Episode is actualy a one to many relationsship, but I decided to make a ManyToManyFiel in Series
 
     def __str__(self):
-       return  (self.title)       
+       return  (self.title) 
+     
 
 class Serie(models.Model):
      title=models.CharField(max_length=100,unique=True)
@@ -107,6 +105,7 @@ class Serie(models.Model):
      
      def __str__(self):
        return  self.title 
+ 
 
 class MyListe(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE) 
@@ -131,7 +130,8 @@ class UserFilmEvaluation(models.Model):
     
     def __str__(self):
        return  (self.user.username + " " +self.video.title )
-     
+ 
+# delete later    
 class EpisodeList(models.Model):
     episode=models.ForeignKey(Episode, on_delete=models.CASCADE)
     series= models.ForeignKey(Serie, on_delete=models.CASCADE)   

@@ -34,8 +34,8 @@ def  episode_post_save(sender,instance, created, **kwargs):
         convert_480p(instance.video_file.path) # Funktion siehe in tasks.py
         
 @receiver(post_delete,sender = Video)
-def video_post_delete(sender,instance, **kwargs):   
+def episode_post_delete(sender,instance, **kwargs):   
     if instance.video_file:
         if os.path.isfile(instance.video_file.path):
-            print('Video wurde gelöscht')
+            print('Episode wurde gelöscht')
             os.remove(instance.video_file.path)

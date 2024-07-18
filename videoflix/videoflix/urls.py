@@ -16,13 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-from videoflixApp.views import LoginView,RegisterView,videoClipView,EpisodeClipView,SerieView,videoEvaluation,serieEvaluation,getMyList,getCategory,categoryItemDetail
+from videoflixApp.views import LogoutView, LoginView,RegisterView,videoClipView,EpisodeClipView,SerieView,videoEvaluation,serieEvaluation,getMyList,getCategory,categoryItemDetail
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', LoginView.as_view()),
+    path('logout/', LogoutView.as_view()),
     path('registerAPI/', RegisterView.as_view(), name='auth_register'),
     path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
     path('__debug__/', include("debug_toolbar.urls")),

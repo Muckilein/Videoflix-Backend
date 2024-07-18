@@ -1,6 +1,6 @@
 env/
 db.sqlite3
 /migrations/
+videoflix/media/
 !/migrations
 !/migrations/init.py
-joinbackend/settings.py

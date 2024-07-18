@@ -11,6 +11,8 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import CategoryListFilmSerializer,CategoryListSeriesSerializer,RegisterSerializer,VideoSerializer,EpisodeSerializer,SerieSerializer,UserFilmEvaluationSerializer,UserSeriesEvaluationSerializer,MyListeSerializer,CategorySerializer
 from .models import User,Video,Episode,Serie,UserFilmEvaluation,UserSerieEvaluation,MyListe,Category,CategoryListSeries,CategoryListFilm
 from .methods import *
+from django.contrib.auth import logout
+from django.http import HttpResponseRedirect
 
 
 # from . methods import *
@@ -27,6 +29,15 @@ class LoginView(ObtainAuthToken):
             'user_id': user.pk,
             'email': user.email
         })
+        
+"""
+Loggout of the logged in user
+"""
+class LogoutView(APIView):
+    
+    def get(self,request,format=None):
+        logout(request)
+        return Response("Logged Out") 
         
 class RegisterView(generics.CreateAPIView):
     """
@@ -139,15 +150,16 @@ class categoryItemDetail(APIView):
     
     def get(self,request,pk):  #self ist wichtig
         cat = Category.objects.filter(id = pk)[0]
+        current_user = request.user
         # get all Series data
         s=CategoryListSeries.objects.filter(category = cat)
-        serSer=CategoryListSeriesSerializer(f, many=True).data 
+        serSer=CategoryListSeriesSerializer(s, many=True).data 
         serSerID=getIdListFromCategory(serSer)      
         serie = getSerie(serSerID,current_user)   
         # get all Series data   
         f=CategoryListFilm.objects.filter(category = cat)
         current_user=request.user
-        filmSer=CategoryListFilmSerializer(s, many=True).data       
+        filmSer=CategoryListFilmSerializer(f, many=True).data       
         filmSerID=getIdListFromCategory(filmSer)       
         film = getFilms(filmSerID,current_user)     
    
