@@ -13,28 +13,38 @@ from .models import User,Video,Episode,Serie,UserFilmEvaluation,UserSerieEvaluat
 from .methods import *
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect
+from rest_framework.exceptions import AuthenticationFailed
 
 
-# from . methods import *
-# Create your views here.
+
 class LoginView(ObtainAuthToken): 
-   def post(self, request, *args, **kwargs):       
+    """
+    Login  
+       
+    """
+    def post(self, request, *args, **kwargs):       
         serializer = self.serializer_class(data=request.data,
                                            context={'request': request})       
-        serializer.is_valid(raise_exception=True)       
-        user = serializer.validated_data['user']             
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            'token': token.key,
-            'user_id': user.pk,
-            'email': user.email
-        })
+        try:
+            serializer.is_valid(raise_exception=True)       
+            user = serializer.validated_data['user']             
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({
+                'status':'ok',
+                'token': token.key,
+                'user_id': user.pk,
+                'email': user.email
+            })
+        except AuthenticationFailed:
+            return Response({'status': 'error'}, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            return Response({'status': 'error', 'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-"""
-Loggout of the logged in user
-"""
+
 class LogoutView(APIView):
-    
+    """
+    Loggout of the logged in user
+    """   
     def get(self,request,format=None):
         logout(request)
         return Response("Logged Out") 
@@ -50,24 +60,22 @@ class RegisterView(generics.CreateAPIView):
 class videoClipView(APIView):
     
     authentication_classes =[TokenAuthentication]
-    permission_classes =[IsAuthenticated] 
-    
+    permission_classes =[IsAuthenticated]     
     serializer_class = VideoSerializer
 
     def get(self, request, format=None):
         queryset = Video.objects.all()
         serializer = self.serializer_class(queryset, many=True)
-        data = adjustFilm(serializer.data, request.user) 
-        #getInList(data,request.user,'Film')             
+        data = adjustFilm(serializer.data, request.user)                     
         return Response(data, status=status.HTTP_200_OK)
 
-    def post(self, request, format=None):
-        jsondata = request.data
-        serializer = self.serializer_class(data=jsondata)
-        if serializer.is_valid(raise_exception=True):
-             serializer.save()
-             msg = {'msg':'Add Clip'}
-             return Response(msg, status=status.HTTP_201_CREATED)    
+    # def post(self, request, format=None):
+    #     jsondata = request.data
+    #     serializer = self.serializer_class(data=jsondata)
+    #     if serializer.is_valid(raise_exception=True):
+    #          serializer.save()
+    #          msg = {'msg':'Add Clip'}
+    #          return Response(msg, status=status.HTTP_201_CREATED)    
         
     
 
@@ -82,32 +90,32 @@ class EpisodeClipView(APIView):
         serializer = self.serializer_class(queryset, many=True)             
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, format=None):
-        jsondata = request.data
-        serializer = self.serializer_class(data=jsondata)
-        if serializer.is_valid(raise_exception=True):
-             serializer.save()
-             msg = {'msg':'Add Clip'}
-             return Response(msg, status=status.HTTP_201_CREATED)
+    # def post(self, request, format=None):
+    #     jsondata = request.data
+    #     serializer = self.serializer_class(data=jsondata)
+    #     if serializer.is_valid(raise_exception=True):
+    #          serializer.save()
+    #          msg = {'msg':'Add Clip'}
+    #          return Response(msg, status=status.HTTP_201_CREATED)
 
    
         
 class SerieView(APIView):
-    serializer_class = SerieSerializer  
-    
+    serializer_class = SerieSerializer
     authentication_classes =[TokenAuthentication]
     permission_classes =[IsAuthenticated]  
 
     def get(self, request, format=None):
         queryset = Serie.objects.all()                
         serializer = self.serializer_class(queryset, many=True)  
-        data = adjustSerie(serializer.data, request.user)         
-        # getInList(data,request.user,'Serie')          
+        data = adjustSerie(serializer.data, request.user)       
         return Response(data, status=status.HTTP_200_OK)            
        
     
 class videoEvaluation(generics.CreateAPIView): 
-    
+    """
+    Return, creates or changes the evalutaion value for all videos
+    """
     authentication_classes =[TokenAuthentication]
     permission_classes =[IsAuthenticated]   
     
@@ -167,7 +175,9 @@ class categoryItemDetail(APIView):
                     
     
 class serieEvaluation(generics.CreateAPIView): 
-    
+    """
+    Return, creates or changes the evalutaion value for all serien
+    """
     authentication_classes =[TokenAuthentication]
     permission_classes =[IsAuthenticated]   
     
