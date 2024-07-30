@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-from videoflixApp.views import LogoutView, LoginView,RegisterView,videoClipView,EpisodeClipView,SerieView,videoEvaluation,serieEvaluation,getMyList,getCategory,categoryItemDetail
+from videoflixApp.views import VerifyEmail, LogoutView, LoginView,RegisterView,videoClipView,EpisodeClipView,SerieView,videoEvaluation,serieEvaluation,getMyList,getCategory,categoryItemDetail
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -25,6 +25,7 @@ urlpatterns = [
     path('login/', LoginView.as_view()),
     path('logout/', LogoutView.as_view()),
     path('registerAPI/', RegisterView.as_view(), name='auth_register'),
+    path('email-verify/', VerifyEmail.as_view(), name="email-verify"), 
     path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
     path('__debug__/', include("debug_toolbar.urls")),
     path('videoclip/', videoClipView.as_view()),

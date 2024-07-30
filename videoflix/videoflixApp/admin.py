@@ -4,8 +4,8 @@ from .models import User,Video,Episode,Serie,Category,CategoryListFilm,CategoryL
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin): 
-    fields = ( 'email' , 'username','first_name','last_name')    
-    list_display = ('email' , 'username','first_name','last_name',)    
+    fields = ( 'email' , 'username','first_name','last_name','is_verified')    
+    list_display = ('email' , 'username','first_name','last_name','is_verified')    
     search_fields = ('username',)
     
 @admin.register (Video)

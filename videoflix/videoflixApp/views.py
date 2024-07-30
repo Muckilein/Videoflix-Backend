@@ -8,14 +8,20 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from .serializers import CategoryListFilmSerializer,CategoryListSeriesSerializer,RegisterSerializer,VideoSerializer,EpisodeSerializer,SerieSerializer,UserFilmEvaluationSerializer,UserSeriesEvaluationSerializer,MyListeSerializer,CategorySerializer
+from .serializers import EmailVerificationSerializer,CategoryListFilmSerializer,CategoryListSeriesSerializer,RegisterSerializer,VideoSerializer,EpisodeSerializer,SerieSerializer,UserFilmEvaluationSerializer,UserSeriesEvaluationSerializer,MyListeSerializer,CategorySerializer
 from .models import User,Video,Episode,Serie,UserFilmEvaluation,UserSerieEvaluation,MyListe,Category,CategoryListSeries,CategoryListFilm
 from .methods import *
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect
 from rest_framework.exceptions import AuthenticationFailed
-
-
+from rest_framework.generics import  GenericAPIView
+from .utils import Util
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.sites.shortcuts import get_current_site
+from django.urls import reverse
+import jwt
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 
 class LoginView(ObtainAuthToken): 
     """
@@ -54,8 +60,56 @@ class RegisterView(generics.CreateAPIView):
     Registers a User when the given data are correct
     """
     queryset = User.objects.all()
-    permission_classes = []
     serializer_class = RegisterSerializer
+    permission_classes = []
+    
+    
+    def post(self, request):
+     serializer = self.get_serializer(data=request.data)
+     serializer.is_valid(raise_exception=True)
+     user = serializer.save()       
+     dataRequest = request.data
+           
+    # getting tokens
+     user_email = User.objects.get(email=dataRequest['email'])
+     tokens = RefreshToken.for_user(user_email).access_token
+        # send email for user verification
+     current_site = get_current_site(request).domain
+     relative_link = reverse('email-verify')
+     absurl = 'http://'+current_site+relative_link+"?token="+str(tokens)
+     email_body = 'Hi '+dataRequest['username'] + \
+            ' Use the link below to verify your email \n' + absurl
+     data = {'email_body': email_body, 'to_email': dataRequest['email'],
+                'email_subject': 'Verify your email'}
+
+     Util.send_email(data=data) 
+     return Response({'user_data': dataRequest, 'access_token' : str(tokens)}, status=status.HTTP_201_CREATED)
+    
+ 
+ 
+class VerifyEmail(GenericAPIView ):
+    serializer_class = EmailVerificationSerializer
+
+    token_param_config = openapi.Parameter(
+        'token', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
+
+    @swagger_auto_schema(manual_parameters=[token_param_config])
+    def get(self, request):
+        token = request.GET.get('token')
+        try:
+            payload = jwt.decode(token, options={"verify_signature": False})
+            print(payload)
+            user = User.objects.get(id=payload['user_id'])
+            if not user.is_verified:
+                user.is_verified = True
+                user.save()
+            return Response({'email': 'Successfully activated'}, status=status.HTTP_200_OK)
+        except jwt.ExpiredSignatureError as identifier:
+            return Response({'error': 'Activation Expired'}, status=status.HTTP_400_BAD_REQUEST)
+        except jwt.exceptions.DecodeError as identifier:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+   
+
     
 class videoClipView(APIView):
     

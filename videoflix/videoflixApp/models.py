@@ -6,6 +6,8 @@ from django.urls import reverse
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from datetime import date
+from django.core.mail import EmailMessage
+import threading
 
 
 
@@ -19,16 +21,16 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
+    # def create_superuser(self, email, password=None, **extra_fields):
+    #     extra_fields.setdefault('is_staff', True)
+    #     extra_fields.setdefault('is_superuser', True)
 
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
+    #     if extra_fields.get('is_staff') is not True:
+    #         raise ValueError('Superuser must have is_staff=True.')
+    #     if extra_fields.get('is_superuser') is not True:
+    #         raise ValueError('Superuser must have is_superuser=True.')
 
-        return self.create_user(email, password, **extra_fields)
+    #     return self.create_user(email, password, **extra_fields)
 
 
 class User(AbstractUser):
@@ -36,6 +38,7 @@ class User(AbstractUser):
      username=models.CharField(max_length=100,default=' ')    
      first_name=models.CharField(max_length=100,default=' ')
      last_name=models.CharField(max_length=100,default=' ')
+     is_verified = models.BooleanField(default=False)
     
      USERNAME_FIELD = "email"
      REQUIRED_FIELDS = []
@@ -192,3 +195,8 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     )
     msg.attach_alternative(email_html_message, "text/html")
     msg.send()   
+    
+
+
+    
+

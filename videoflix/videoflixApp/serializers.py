@@ -6,11 +6,15 @@ from django.db import transaction
 
 
 # class UserSerializer(serializers.HyperlinkedModelSerializer):
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+# class UserSerializer(serializers.HyperlinkedModelSerializer):
+#     class Meta:
+#         model = User    
+#         fields = ['id','username','email','short']
+
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User    
-        fields = ['id','username','email','short']
-        
+        model = User
+        fields = ['email', 'username', 'is_verified']        
         
 """
 Registers a new User, when all the given data are valid.
@@ -29,24 +33,28 @@ class RegisterSerializer(serializers.ModelSerializer):
       # 'first_name': {'required': False},
       # 'last_name': {'required': False}
     }#111abcdefgh
+    
   def validate(self, attrs):
     if attrs['password'] != attrs['password2']:
       raise serializers.ValidationError(
         {"password": "Password fields didn't match."})
     return attrs
   def create(self, validated_data):
-    print(type(validated_data))
-   
+    # print(type(validated_data))   
     user = User.objects.create(
       username=validated_data['username'],
-      email=validated_data['email'],
-      # first_name = validated_data['first_name'],
-      # last_name=validated_data['last_name']     
+      email=validated_data['email'],     
     )
     user.set_password(validated_data['password'])
-    user.save()  
+    user.save()     
     return user
   
+
+class EmailVerificationSerializer(serializers.ModelSerializer):
+    token = serializers.CharField(max_length=555)
+    class Meta:
+        model = User
+        fields = ['token']
 
 class VideoSerializer(serializers.ModelSerializer):
    
@@ -125,3 +133,13 @@ class CategoryListFilmSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return CategoryListFilm.objects.create(**validated_data)  
+    
+
+class SignUpSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only =True  )
+    # tokens = serializers.SerializerMethodField()
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name',
+                  'username', 'email', 'password', 'phone_number','tokens']
+        read_only_fields= ['id',] 

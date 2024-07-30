@@ -53,6 +53,9 @@ INSTALLED_APPS = [
     'django_rest_passwordreset',  #pip install django-rest-passwordreset
     'corsheaders',   #pip install django-cors-headers  important CORS
     'debug_toolbar',
+    'rest_framework_simplejwt',
+    'drf_yasg'
+    
 ]
 
 MIDDLEWARE = [
