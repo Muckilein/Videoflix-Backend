@@ -33,14 +33,19 @@ class LoginView(ObtainAuthToken):
                                            context={'request': request})       
         try:
             serializer.is_valid(raise_exception=True)       
-            user = serializer.validated_data['user']             
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({
+            user = serializer.validated_data['user'] 
+            print("user is") 
+          
+            if(user.is_verified):           
+             token, created = Token.objects.get_or_create(user=user)
+             return Response({
                 'status':'ok',
                 'token': token.key,
                 'user_id': user.pk,
                 'email': user.email
-            })
+                 })
+            else:
+                return Response({'status': 'Account not yet verified'}, status=status.HTTP_401_UNAUTHORIZED)
         except AuthenticationFailed:
             return Response({'status': 'error'}, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
