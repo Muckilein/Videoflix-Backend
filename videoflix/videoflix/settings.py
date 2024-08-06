@@ -110,6 +110,17 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'videoflix',
+# 	    'USER':'julia',
+# 	    'PASSWORD':'111abcdefgh',
+# 	    'HOST':'localhost',
+# 	    'PORT':'5432',
+#     }
+# }
+
 
 
 # Password validation
