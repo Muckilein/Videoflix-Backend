@@ -29,13 +29,11 @@ class LoginView(ObtainAuthToken):
        
     """
     def post(self, request, *args, **kwargs):       
-        serializer = self.serializer_class(data=request.data,
-                                           context={'request': request})       
+        serializer = self.serializer_class(data=request.data, context={'request': request})  
+                  
         try:
             serializer.is_valid(raise_exception=True)       
-            user = serializer.validated_data['user'] 
-            print("user is") 
-          
+            user = serializer.validated_data['user']           
             if(user.is_verified):           
              token, created = Token.objects.get_or_create(user=user)
              return Response({
@@ -48,8 +46,8 @@ class LoginView(ObtainAuthToken):
                 return Response({'status': 'Account not yet verified'}, status=status.HTTP_401_UNAUTHORIZED)
         except AuthenticationFailed:
             return Response({'status': 'error'}, status=status.HTTP_401_UNAUTHORIZED)
-        except Exception as e:
-            return Response({'status': 'error', 'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:           
+            return Response({'status': 'error', 'detail': str(e)}, status=status.HTTP_401_UNAUTHORIZED)
         
 
 class LogoutView(APIView):
@@ -127,16 +125,7 @@ class videoClipView(APIView):
         serializer = self.serializer_class(queryset, many=True)
         data = adjustFilm(serializer.data, request.user)                     
         return Response(data, status=status.HTTP_200_OK)
-
-    # def post(self, request, format=None):
-    #     jsondata = request.data
-    #     serializer = self.serializer_class(data=jsondata)
-    #     if serializer.is_valid(raise_exception=True):
-    #          serializer.save()
-    #          msg = {'msg':'Add Clip'}
-    #          return Response(msg, status=status.HTTP_201_CREATED)    
-        
-    
+               
 
 class EpisodeClipView(APIView):
     authentication_classes =[TokenAuthentication]
@@ -147,16 +136,7 @@ class EpisodeClipView(APIView):
     def get(self, request, format=None):
         queryset = Episode.objects.all()
         serializer = self.serializer_class(queryset, many=True)             
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    # def post(self, request, format=None):
-    #     jsondata = request.data
-    #     serializer = self.serializer_class(data=jsondata)
-    #     if serializer.is_valid(raise_exception=True):
-    #          serializer.save()
-    #          msg = {'msg':'Add Clip'}
-    #          return Response(msg, status=status.HTTP_201_CREATED)
-
+        return Response(serializer.data, status=status.HTTP_200_OK)    
    
         
 class SerieView(APIView):
@@ -189,21 +169,31 @@ class videoEvaluation(generics.CreateAPIView):
         eval = data['eval']
         videoId = data['filmId']
         current_user = request.user      
-        video = Video.objects.filter(id = videoId)[0]        
-        evaluation = UserFilmEvaluation.objects.create(user=current_user,video = video,evaluation = eval)
-        allEval = UserFilmEvaluation.objects.filter(user = current_user)
-        allEvalUser= UserFilmEvaluationSerializer(allEval,many=True)
-        return Response(allEvalUser.data, status=status.HTTP_200_OK)
+        video = Video.objects.filter(id = videoId)
+        if len(video)>0: 
+            video = video[0]                  
+            evaluation = UserFilmEvaluation.objects.create(user=current_user,video = video,evaluation = eval)
+            allEval = UserFilmEvaluation.objects.filter(user = current_user)
+            allEvalUser= UserFilmEvaluationSerializer(allEval,many=True)
+            return Response(allEvalUser.data, status=status.HTTP_200_OK)
+        else:
+            return Response({'status':'error'}, status=status.HTTP_404_NOT_FOUND)
+            
     def put(self, request, format=None):
         data = request.data        
         eval = data['eval']
         videoId = data['filmId']
         current_user = request.user       
-        video = Video.objects.filter(id = videoId)[0]              
-        evaluation = UserFilmEvaluation.objects.filter(user = current_user, video = video)[0] 
-        evaluation.evaluation = eval
-        evaluation.save()         
-        return Response('OK')
+        video = Video.objects.filter(id = videoId)[0]             
+        evaluation = UserFilmEvaluation.objects.filter(user = current_user, video = video)
+        if len(evaluation)>0: 
+            evaluation=evaluation[0]           
+            evaluation.evaluation = eval
+            evaluation.save()         
+            return Response('OK')
+        else:
+            return Response({'status':'error'}, status.HTTP_404_NOT_FOUND)
+            
     
 
     
@@ -251,20 +241,27 @@ class serieEvaluation(generics.CreateAPIView):
         eval = data['eval']
         videoId = data['filmId']
         current_user = request.user       
-        serie = Serie.objects.filter(id = videoId)[0]       
-        evaluation = UserSerieEvaluation.objects.create(user=current_user,serie = serie,evaluation = eval)      
-        return Response('OK')
+        serie = Serie.objects.filter(id = videoId) 
+        if len(serie)>0: 
+            serie=serie[0]     
+            evaluation = UserSerieEvaluation.objects.create(user=current_user,serie = serie,evaluation = eval) 
+            return Response('OK')       
+            
     
     def put(self, request, format=None):
         data = request.data        
         eval = data['eval']
         videoId = data['filmId']
         current_user = request.user       
-        serie = Serie.objects.filter(id = videoId)[0]              
-        evaluation = UserSerieEvaluation.objects.filter(user = current_user, serie = serie)[0] 
-        evaluation.evaluation = eval
-        evaluation.save()         
-        return Response('OK')  
+        serie = Serie.objects.filter(id = videoId)[0]                      
+        evaluation = UserSerieEvaluation.objects.filter(user = current_user, serie = serie) 
+        if len(evaluation)>0:
+         evaluation=evaluation[0] 
+         evaluation.evaluation = eval
+         evaluation.save()         
+         return Response('OK')
+        else:
+            return Response({'status':'error'}, status.HTTP_404_NOT_FOUND)  
     
  
     

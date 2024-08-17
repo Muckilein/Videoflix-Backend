@@ -13,9 +13,9 @@ def video_post_save(sender,instance, created, **kwargs):
         print('new video created')
         #queue = django_rq.get_queue('default',autocommit=True)
         #queue.enqueue(convert_480p,instance.video_file.path)
-        convert_480p(instance.video_file.path) # Funktion siehe in tasks.py
-        convert_720p(instance.video_file.path) 
-        convert_1080p(instance.video_file.path) 
+        # convert_480p(instance.video_file.path) # Funktion siehe in tasks.py
+        # convert_720p(instance.video_file.path) 
+        # convert_1080p(instance.video_file.path) 
         
 @receiver(post_delete,sender = Video)
 def video_post_delete(sender,instance, **kwargs):   

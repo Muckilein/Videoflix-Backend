@@ -31,7 +31,7 @@ urlpatterns = [
     path('videoclip/', videoClipView.as_view()),
     path('episodenclip/', EpisodeClipView.as_view()),
     path('series/', SerieView.as_view()),
-    path('videoEvaluation/', videoEvaluation.as_view()),
+    path('videoEvaluation/', videoEvaluation.as_view(),name='video-evaluation'),
     path('serieEvaluation/', serieEvaluation.as_view()),
     path('getMyList/', getMyList.as_view()),
     path('getCategory/', getCategory.as_view()),

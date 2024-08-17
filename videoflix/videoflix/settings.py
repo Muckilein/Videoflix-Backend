@@ -52,14 +52,14 @@ INSTALLED_APPS = [
     'rest_auth.registration',   
     'django_rest_passwordreset',  #pip install django-rest-passwordreset
     'corsheaders',   #pip install django-cors-headers  important CORS
-    'debug_toolbar',
+   # 'debug_toolbar',
     'rest_framework_simplejwt',
     'drf_yasg'
     
 ]
 
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',  #important CORS
