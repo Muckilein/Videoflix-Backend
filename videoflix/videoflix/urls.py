@@ -19,9 +19,11 @@ from django.urls import path,include
 from videoflixApp.views import VerifyEmail, LogoutView, LoginView,RegisterView,videoClipView,EpisodeClipView,SerieView,videoEvaluation,serieEvaluation,getMyList,getCategory,categoryItemDetail
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('django-rq/', include('django_rq.urls')),
     path('login/', LoginView.as_view()),
     path('logout/', LogoutView.as_view()),
     path('registerAPI/', RegisterView.as_view(), name='auth_register'),
@@ -36,4 +38,7 @@ urlpatterns = [
     path('getMyList/', getMyList.as_view()),
     path('getCategory/', getCategory.as_view()),
     path('getItemOfCategory/<int:pk>/', categoryItemDetail.as_view()) ,
-]+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+] +  static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+
+
+urlpatterns += staticfiles_urlpatterns()
