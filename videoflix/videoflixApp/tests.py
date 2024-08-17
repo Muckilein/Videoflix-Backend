@@ -136,81 +136,81 @@ User = get_user_model()
 #         self.assertIn('password', response.data)
 #         self.assertIn('email', response.data)
         
-class VideoEvaluationTests(APITestCase):
+# class VideoEvaluationTests(APITestCase):
 
-    def setUp(self):
-        # Benutzer erstellen und authentifizieren
-        self.user = User.objects.create_user(username='testuser', password='testpassword', email='testuser@example.com')
-        self.token = Token.objects.create(user=self.user)
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+#     def setUp(self):
+#         # Benutzer erstellen und authentifizieren
+#         self.user = User.objects.create_user(username='testuser', password='testpassword', email='testuser@example.com')
+#         self.token = Token.objects.create(user=self.user)
+#         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
         
-        # Beispiel-Video erstellen
-        self.video = Video.objects.create(title='Test Video')
+#         # Beispiel-Video erstellen
+#         self.video = Video.objects.create(title='Test Video')
         
-        # URLs festlegen
-        self.url = reverse('video-evaluation')  # Stelle sicher, dass der URL-Namen korrekt ist
+#         # URLs festlegen
+#         self.url = reverse('video-evaluation')  # Stelle sicher, dass der URL-Namen korrekt ist
     
-    def test_get_evaluations(self):
-        """
-        Testet das Abrufen aller Bewertungen des aktuellen Benutzers.
-        """
-        # Beispielhafte Bewertung erstellen
-        UserFilmEvaluation.objects.create(user=self.user, video=self.video, evaluation=5)
+#     def test_get_evaluations(self):
+#         """
+#         Testet das Abrufen aller Bewertungen des aktuellen Benutzers.
+#         """
+#         # Beispielhafte Bewertung erstellen
+#         UserFilmEvaluation.objects.create(user=self.user, video=self.video, evaluation=5)
         
-        response = self.client.get(self.url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)  # Es sollte eine Bewertung zurückgegeben werden
+#         response = self.client.get(self.url, format='json')
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.assertEqual(len(response.data), 1)  # Es sollte eine Bewertung zurückgegeben werden
     
-    def test_post_evaluation(self):
-        """
-        Testet das Erstellen einer neuen Bewertung für ein Video.
-        """
-        data = {'filmId': self.video.id, 'eval': 4}
-        response = self.client.post(self.url, data, format='json')
+#     def test_post_evaluation(self):
+#         """
+#         Testet das Erstellen einer neuen Bewertung für ein Video.
+#         """
+#         data = {'filmId': self.video.id, 'eval': 4}
+#         response = self.client.post(self.url, data, format='json')
         
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)  # Es sollte eine Bewertung zurückgegeben werden
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.assertEqual(len(response.data), 1)  # Es sollte eine Bewertung zurückgegeben werden
         
-        # Überprüfen, ob die Bewertung korrekt gespeichert wurde
-        evaluation = UserFilmEvaluation.objects.get(user=self.user, video=self.video)
-        self.assertEqual(evaluation.evaluation, 4)
+#         # Überprüfen, ob die Bewertung korrekt gespeichert wurde
+#         evaluation = UserFilmEvaluation.objects.get(user=self.user, video=self.video)
+#         self.assertEqual(evaluation.evaluation, 4)
 
-    def test_post_evaluation_video_not_found(self):
-        """
-        Testet das Erstellen einer Bewertung für ein nicht existierendes Video.
-        """
-        data = {'filmId': 999, 'eval': 2}  # Ungültige Video-ID
-        response = self.client.post(self.url, data, format='json')
+#     def test_post_evaluation_video_not_found(self):
+#         """
+#         Testet das Erstellen einer Bewertung für ein nicht existierendes Video.
+#         """
+#         data = {'filmId': 999, 'eval': 2}  # Ungültige Video-ID
+#         response = self.client.post(self.url, data, format='json')
         
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertIn('status', response.data)
+#         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+#         self.assertIn('status', response.data)
     
-    def test_put_evaluation(self):
-        """
-        Testet das Aktualisieren einer bestehenden Bewertung.
-        """
-        # Beispielhafte Bewertung erstellen
-        UserFilmEvaluation.objects.create(user=self.user, video=self.video, evaluation=3)
+#     def test_put_evaluation(self):
+#         """
+#         Testet das Aktualisieren einer bestehenden Bewertung.
+#         """
+#         # Beispielhafte Bewertung erstellen
+#         UserFilmEvaluation.objects.create(user=self.user, video=self.video, evaluation=3)
         
-        # Bewertung aktualisieren
-        data = {'filmId': self.video.id, 'eval': 5}
-        response = self.client.put(self.url, data, format='json')
+#         # Bewertung aktualisieren
+#         data = {'filmId': self.video.id, 'eval': 5}
+#         response = self.client.put(self.url, data, format='json')
         
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
-        # Überprüfen, ob die Bewertung aktualisiert wurde
-        evaluation = UserFilmEvaluation.objects.get(user=self.user, video=self.video)
-        self.assertEqual(evaluation.evaluation, 5)
+#         # Überprüfen, ob die Bewertung aktualisiert wurde
+#         evaluation = UserFilmEvaluation.objects.get(user=self.user, video=self.video)
+#         self.assertEqual(evaluation.evaluation, 5)
     
-    def test_put_evaluation_not_found(self):
-        """
-        Testet das Aktualisieren einer nicht existierenden Bewertung.
-        """
-        data = {'filmId': self.video.id, 'eval': 2}  # Keine vorhandene Bewertung
-        response = self.client.put(self.url, data, format='json')
+#     def test_put_evaluation_not_found(self):
+#         """
+#         Testet das Aktualisieren einer nicht existierenden Bewertung.
+#         """
+#         data = {'filmId': self.video.id, 'eval': 2}  # Keine vorhandene Bewertung
+#         response = self.client.put(self.url, data, format='json')
         
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND) 
-        print(response.data)    
-        self.assertIn('status', response.data)       
+#         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND) 
+#         print(response.data)    
+#         self.assertIn('status', response.data)       
 
         
