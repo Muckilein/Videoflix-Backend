@@ -23,7 +23,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('django-rq/', include('django_rq.urls')),
+   # path('django-rq/', include('django_rq.urls')),
     path('login/', LoginView.as_view()),
     path('logout/', LogoutView.as_view()),
     path('registerAPI/', RegisterView.as_view(), name='auth_register'),

@@ -87,7 +87,7 @@ class Episode(models.Model):
     season = models.IntegerField(default=1)
     episode = models.IntegerField(default=1)   
     img = models.ImageField(upload_to='bilder/',blank=True, null=True) 
-   # serie= models.ForeignKey(Serie, on_delete=models.CASCADE,null=True) Series ans Episode is actualy a one to many relationsship, but I decided to make a ManyToManyFiel in Series
+  
 
     def __str__(self):
        return  (self.title) 
@@ -135,22 +135,19 @@ class UserFilmEvaluation(models.Model):
     def __str__(self):
        return  (self.user.username + " " +self.video.title )
  
-# delete later    
+   
 class EpisodeList(models.Model):
     episode=models.ForeignKey(Episode, on_delete=models.CASCADE)
     series= models.ForeignKey(Serie, on_delete=models.CASCADE)   
           
     def __str__(self):
-       return  (self.episode.title + " " +self.series.title) 
-   
+       return  (self.episode.title + " " +self.series.title)   
     
 
 class CategoryListSeries(models.Model):
     category=models.ForeignKey(Category, on_delete=models.CASCADE)
-    video= models.ForeignKey(Serie, on_delete=models.CASCADE)   
-    
-  
-        
+    video= models.ForeignKey(Serie, on_delete=models.CASCADE)      
+          
     
 @receiver(reset_password_token_created)
 def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
@@ -173,13 +170,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
         'reset_password_url': "http://localhost:4200/newPassword?path={}&token={}".format(
           instance.request.build_absolute_uri(reverse('password_reset:reset-password-confirm')),
           reset_password_token.key)   
-        }
-    #  'reset_password_url': "http://127.0.0.1:5500/html/reset-your-password.html?path={}&token={}".format(
-    #       instance.request.build_absolute_uri(reverse('password_reset:reset-password-confirm')),
-    #       reset_password_token.key)   
-    #     }
-    print(context)
-
+        }     
     # render email text 
     email_html_message = render_to_string('user_reset_password.html', context)
     email_plaintext_message = render_to_string('user_reset_password.txt', context)
